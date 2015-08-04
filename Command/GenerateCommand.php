@@ -7,7 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use BHW\Bundle\CoreBundle\Generator\AdminTestsGenerator;
+use BHW\Bundle\CoreBundle\Generator\SonataAdminTestsGenerator;
 use Doctrine\Common\Annotations\AnnotationReader;
 
 
@@ -36,7 +36,7 @@ class GenerateCommand extends ContainerAwareCommand
 
         $bundle_path =  $this->getBundlePathFromClass($admin->getClass());
 
-        $generator = new AdminTestsGenerator();
+        $generator = new SonataAdminTestsGenerator();
 
         $generator->setSkeletonDirs($skeletonDirectory);
 
