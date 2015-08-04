@@ -5,9 +5,5 @@
     "autoload": {
         "psr-4": { "BVM\\SonataAdminTestsGeneratorBundle\\": "" }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0.x-dev"
-        }
-    }
+
 }
