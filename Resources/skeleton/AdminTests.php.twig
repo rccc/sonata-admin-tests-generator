@@ -79,9 +79,29 @@ class {{ data.name }}AdminTest extends WebTestCase
 
         $this->assertTrue(count($form) === 1, 'Le formulaire de création est présent');
 
+
+        $array = array();
+
+        $extract = $crawler
+            ->filter('input[name="test[_token]"]')
+            ->extract(array('value'))
+        ;
+        
+        $array['_token'] = $extract[0];
+
         {% for field in data.crud["create"].fields %}
-        $form['test[{{field.name}}]'] = 'test';
+
+        $array['{{field.name}}'] = 'test';
+        $this->assertGreaterThan(0, $crawler->filter('[name="test[{{ field.name }}]"]')->count());
+        
         {% endfor %}
+
+        $client->request(
+            'POST',
+            $url,
+            array('test' => $array),
+            array()
+        );
 
         $crawler = $client->submit($form);
 
