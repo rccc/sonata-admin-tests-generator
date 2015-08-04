@@ -1,0 +1,184 @@
+<?php
+
+namespace BHW\Bundle\SubscriptionBundle\Tests\Relance;
+
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
+
+class {{ data.name }}AdminTest extends WebTestCase
+{
+    private $domain;
+
+    public function setUp()
+    {
+        if(defined('TESTS_DOMAIN'))
+        {
+            $domain = TESTS_DOMAIN;
+        }else{
+            
+            global $argv;
+
+            if(isset($argv[4])){
+                $domain = $argv[4];                
+            }
+
+            if(!$domain)
+            {
+
+                throw new Exception('"domain" argument is mandatory');
+            }
+
+        }
+
+        $this->domain = $domain;
+    }
+
+    {% if 'list' in data.crud|keys %}
+
+    public function testListIsSuccessfull()
+    {
+
+        $client = static::createClient(array(), array(
+        'PHP_AUTH_USER' => 'registration@bzoote.com',
+        'PHP_AUTH_PW'   => 'chuck',
+        ));
+
+        $client->enableProfiler();
+
+        $container = $client->getContainer();
+        $url = sprintf('%s{{data.crud["list"].route_url }}', $this->domain); 
+
+        $crawler = $client->request('GET',$url);
+
+        $this->assertTrue($client->getResponse()->isSuccessful());
+    }
+
+    {% endif %}
+
+    {% if 'create' in data.crud|keys %}
+
+    public function testCreateIsSuccessfull()
+    {
+
+        $client = static::createClient(array(), array(
+        'PHP_AUTH_USER' => 'registration@bzoote.com',
+        'PHP_AUTH_PW'   => 'chuck',
+        ));
+
+        $client->enableProfiler();
+
+        $container = $client->getContainer();
+
+        $url = sprintf('%s{{data.crud["create"].route_url }}', $this->domain); 
+
+        $crawler = $client->request('GET',$url);
+
+        $this->assertTrue($client->getResponse()->isSuccessful());
+
+        $form = $crawler->selectButton('btn_create_and_edit')->form();
+
+        $this->assertTrue(count($form) === 1, 'Le formulaire de création est présent');
+
+        {% for field in data.crud["create"].fields %}
+        $form['test[{{field.name}}]'] = 'test';
+        {% endfor %}
+
+        $crawler = $client->submit($form);
+
+        $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
+
+        $crawler = $client->followRedirect();
+
+        $this->assertTrue($client->getResponse()->isSuccessful());
+
+        if ($profile = $client->getProfile()) 
+        {
+            $this->assertEquals(0,$profile->getCollector('form')->getData()['nb_errors']);   
+        }
+
+        $id = $client->getRequest()->get('id');
+
+        $this->assertTrue(null !== $id);
+
+        return $id;
+    }
+
+    {% endif %}
+
+    {% if 'show' in data.crud|keys %}
+    /**
+     * @depends testCreateIsSuccessfull
+     */
+    public function testShowIsSuccessfull($id)
+    {
+        $client = static::createClient(array(), array(
+        'PHP_AUTH_USER' => 'registration@bzoote.com',
+        'PHP_AUTH_PW'   => 'chuck',
+        ));
+
+        $url = sprintf('%s{{data.crud["show"].route_url }}', $this->domain,$id); 
+
+        $crawler = $client->request('GET',$url);
+
+        $this->assertTrue($client->getResponse()->isSuccessful());
+
+        return $id;
+    }
+
+    {% endif %}
+    {% if 'edit' in data.crud|keys %}
+    /**
+     * @depends testShowIsSuccessfull
+     */
+    public function testEditIsSuccessfull($id)
+    {
+
+        $client = static::createClient(array(), array(
+        'PHP_AUTH_USER' => 'registration@bzoote.com',
+        'PHP_AUTH_PW'   => 'chuck',
+        ));
+
+        $url = sprintf('%s{{data.crud["edit"].route_url }}', $this->domain,$id); 
+
+        $crawler = $client->request('GET',$url);
+
+        $this->assertTrue($client->getResponse()->isSuccessful());
+
+        return $id;
+    }     
+
+    {% endif %}
+    {% if 'delete' in data.crud|keys %}
+    /**
+     * @depends testEditIsSuccessfull
+     */
+    public function testDeleteIsSuccessfull($id)
+    {
+
+        $client = static::createClient(array(), array(
+        'PHP_AUTH_USER' => 'registration@bzoote.com',
+        'PHP_AUTH_PW'   => 'chuck',
+        ));
+
+        $container = $client->getContainer();
+
+        $url = sprintf('%s{{data.crud["delete"].route_url }}', $this->domain,$id); 
+
+        $crawler = $client->request('GET',$url);
+
+        $this->assertTrue($client->getResponse()->isSuccessful());
+
+        $node = $crawler->filter('form')->first();
+
+        $crawler = $client->submit($node->form());
+
+        $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
+
+        $crawler = $client->followRedirect();
+
+        $this->assertTrue($client->getResponse()->isSuccessful());
+
+    }     
+    {% endif %}
+
+}
