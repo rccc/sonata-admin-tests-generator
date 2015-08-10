@@ -106,7 +106,7 @@ class {{ data.name }}AdminTest extends WebTestCase
         
         $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
 
-        // $crawler = $client->followRedirect();
+        $crawler = $client->followRedirect();
 
         $this->assertTrue($client->getResponse()->isSuccessful());
 
