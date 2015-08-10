@@ -11,23 +11,23 @@ class {{ data.name }}AdminTest extends WebTestCase
 
     public function setUp()
     {
-        if(defined('TESTS_DOMAIN'))
+
+        global $argv;
+
+        if(isset($argv[4])){
+            $domain = $argv[4];                
+        }
+
+        if(!$domain)
         {
-            $domain = TESTS_DOMAIN;
-        }else{
-            
-            global $argv;
-
-            if(isset($argv[4])){
-                $domain = $argv[4];                
-            }
-
-            if(!$domain)
+            if(defined('TESTS_DOMAIN'))
             {
-
-                throw new Exception('"domain" argument is mandatory');
+                $domain = TESTS_DOMAIN;
             }
-
+            else
+            {
+                throw new Exception('"domain" argument is mandatory');                
+            }
         }
 
         $this->domain = $domain;
@@ -61,8 +61,8 @@ class {{ data.name }}AdminTest extends WebTestCase
     {
 
         $client = static::createClient(array(), array(
-        'PHP_AUTH_USER' => 'registration@bzoote.com',
-        'PHP_AUTH_PW'   => 'chuck',
+        'PHP_AUTH_USER' => 'directeur@directeur.net',
+        'PHP_AUTH_PW'   => 'directeur',
         ));
 
         $client->enableProfiler();
@@ -75,10 +75,9 @@ class {{ data.name }}AdminTest extends WebTestCase
 
         $this->assertTrue($client->getResponse()->isSuccessful());
 
-        $form = $crawler->selectButton('btn_create_and_edit')->form();
+        $form = $crawler->filter('form')->form();
 
         $this->assertTrue(count($form) === 1, 'Le formulaire de création est présent');
-
 
         $array = array();
 
@@ -103,16 +102,22 @@ class {{ data.name }}AdminTest extends WebTestCase
             array()
         );
 
-        $crawler = $client->submit($form);
-
+        //dump($client->getResponse()->getContent());
+        
         $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
 
-        $crawler = $client->followRedirect();
+        // $crawler = $client->followRedirect();
 
         $this->assertTrue($client->getResponse()->isSuccessful());
 
         if ($profile = $client->getProfile()) 
         {
+
+            if($profile->getCollector('form')->getData()['nb_errors'] > 0)
+            {
+                var_dump($profile->getCollector('form')->getData()['forms']['test']['errors']);
+            }
+
             $this->assertEquals(0,$profile->getCollector('form')->getData()['nb_errors']);   
         }
 
