@@ -1,6 +1,6 @@
 <?php
 
-namespace BHW\Bundle\SubscriptionBundle\Tests\Relance;
+namespace {{ namespace }};
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -102,13 +102,6 @@ class {{ data.name }}AdminTest extends WebTestCase
             array()
         );
 
-        // Uncomment to debug
-        // $alert = $crawler->filter('.alert-danger')->eq(0);
-
-        // if(count($alert))
-        // {
-        //     print($alert->text());            
-        // }
 
         $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
 

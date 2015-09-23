@@ -10,17 +10,19 @@ class SonataAdminTestsGenerator extends Generator
 	 * @param  object $admin
 	 * @return false | int
 	 */
-	public function generate($admin, $bundle_path)
+	public function generate($admin, $bundle)
 	{
 
 		$admin_name = $this->getAdminNameFromAdminCode($admin->getCode());
 
-		$file_path = sprintf('%s/Tests/%sAdminTest.php',$bundle_path, $admin_name);
-
+		$file_path = sprintf('%s/Tests/%sAdminTest.php',$bundle->getPath(), $admin_name);
 
 		$data = $this->getDataFromAdmin($admin, $admin_name);
 
-		return $this->renderFile('AdminTests.php.twig', $file_path, array('data' =>$data));
+		return $this->renderFile('AdminTests.php.twig', $file_path, array(
+			'data' =>$data,
+			'namespace' => $namespace
+		));
 	}
 
 	protected function getDatafromAdmin($admin, $admin_name)
@@ -116,4 +118,6 @@ class SonataAdminTestsGenerator extends Generator
 			return strtoupper($first);
 
 	}
+
+
 }

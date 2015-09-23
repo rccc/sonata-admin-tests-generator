@@ -34,14 +34,34 @@ class GenerateCommand extends ContainerAwareCommand
 
         $skeletonDirectory = __DIR__ . '/../Resources/skeleton';
 
-        $bundle_path =  $this->getBundlePathFromClass($admin->getClass());
+        $bundleName = $this->getBundleNameFromClass($admin->getClass());
+
+        dump($bundleName);
+
+        $bundle = $this->getBundle($bundleName);
+
+        dump($bundle);
+
+        die();
+
+        // $bundle_path =  $this->getBundlePathFromClass($admin->getClass());
 
         $generator = new SonataAdminTestsGenerator();
 
         $generator->setSkeletonDirs($skeletonDirectory);
 
-        dump($generator->generate($admin, $bundle_path));
+        dump($generator->generate($admin, $bundle));
 
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return BundleInterface
+     */
+    protected function getBundle($name)
+    {
+        return $this->getKernel()->getBundle($name);
     }
 
 
