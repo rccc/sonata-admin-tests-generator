@@ -61,7 +61,7 @@ class GenerateCommand extends ContainerAwareCommand
      */
     protected function getBundle($name)
     {
-        return $this->getKernel()->getBundle($name);
+        return $this->getApplication()->getKernel()->getBundle($name);
     }
 
 
