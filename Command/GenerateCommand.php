@@ -42,9 +42,6 @@ class GenerateCommand extends ContainerAwareCommand
 
         dump($bundle);
 
-        dump(get_class($admin));
-
-        die();
 
         // $bundle_path =  $this->getBundlePathFromClass($admin->getClass());
 

@@ -19,6 +19,12 @@ class SonataAdminTestsGenerator extends Generator
 
 		$data = $this->getDataFromAdmin($admin, $admin_name);
 
+		$namespace = $this->getNamespace($admin);
+
+		dump($namespace);
+
+		die();
+
 		return $this->renderFile('AdminTests.php.twig', $file_path, array(
 			'data' =>$data,
 			'namespace' => $namespace
@@ -119,5 +125,15 @@ class SonataAdminTestsGenerator extends Generator
 
 	}
 
+	protected function getNamespace($admin)
+	{
+		$chunks = explode('\\', get_class($admin));
+
+		$tmp = array_slice($chunks,0,count($chunks)-2);
+
+		$namespace = sprintf('%s\Tests', implode('\\', $tmp));	
+
+		return $namespace;
+	}
 
 }
