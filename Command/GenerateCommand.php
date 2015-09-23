@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use BVM\SonataAdminTestsGeneratorBundle\Generator\SonataAdminTestsGenerator;
 use Doctrine\Common\Annotations\AnnotationReader;
-
+use Sonata\AdminBundle\Command\Validators;
 
 class GenerateCommand extends ContainerAwareCommand
 {
@@ -41,6 +41,8 @@ class GenerateCommand extends ContainerAwareCommand
         $bundle = $this->getBundle($bundleName);
 
         dump($bundle);
+
+        dump(get_class($admin));
 
         die();
 
