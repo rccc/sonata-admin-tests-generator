@@ -79,6 +79,10 @@ class {{ data.name }}AdminTest extends WebTestCase
 
         $this->assertTrue(count($form) === 1, 'Le formulaire de création est présent');
 
+        {% for field_name, field_desc in admin.formFieldDescriptions %}
+        $this->assertGreaterThan(0, $crawler->filter('[name="test[{{ field_name }}]"]')->count());
+        {% endfor %}
+
         $array = array();
 
         $extract = $crawler
@@ -89,10 +93,7 @@ class {{ data.name }}AdminTest extends WebTestCase
         $array['_token'] = $extract[0];
 
         {% for field in data.crud["create"].fields %}
-
-        $array['{{field.name}}'] = 'test';
-        $this->assertGreaterThan(0, $crawler->filter('[name="test[{{ field.name }}]"]')->count());
-        
+        $array['{{field.name}}'] = 'test';        
         {% endfor %}
 
         $client->request(
