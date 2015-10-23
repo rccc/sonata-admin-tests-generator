@@ -105,7 +105,10 @@ class SonataAdminTestsGenerator extends Generator
 	 */
 	protected function getAdminNameFromAdminCode($admin_code)
 	{
+			var_dump($admin_code);
 			$first = explode('.', $admin_code)[0];
+
+			var_dump($first);
 
 			if(false !== strrpos($first, '_'))
 			{

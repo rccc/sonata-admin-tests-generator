@@ -36,14 +36,9 @@ class GenerateCommand extends ContainerAwareCommand
 
         $bundleName = $this->getBundleNameFromClass($admin->getClass());
 
-        var_dump($bundleName);
+        // var_dump($bundleName);
 
         $bundle = $this->getBundle($bundleName);
-
-        var_dump($bundle);
-
-
-        // $bundle_path =  $this->getBundlePathFromClass($admin->getClass());
 
         $generator = new SonataAdminTestsGenerator();
 
