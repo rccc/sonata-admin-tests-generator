@@ -117,7 +117,7 @@ class SonataAdminTestsGenerator extends Generator
 				{
 					$chunks = explode('_', $parts[2]);
 
-					$name .=  array_map("ucfirst", $chunks);
+					$name .=  implode('',array_map("ucfirst", $chunks));
 				}
 				else
 				{
