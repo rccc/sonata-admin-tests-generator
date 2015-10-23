@@ -94,8 +94,41 @@ class {{ data.name }}AdminTest extends WebTestCase
 
         {% for field_name, field_desc in admin.formFieldDescriptions %}
 
-        {{ dump(field_desc) }}
-        $array['{{ field_name }}'] = 'test';        
+            {{ dump(field_desc) }}
+
+  
+            {% if field_desc.type == 'sonata_type_autocomplete' %}
+                $array['{{ field_name }}'] = array(
+                    'title' => 1,
+                    'identifiers' => array(1)
+                );
+
+            {% elseif field_desc.type == 'date' %}
+
+                $array['{{ field_name }}'] =  array(
+                    'day' => 1,
+                    'month' => 1,
+                    'year' => 2000
+                );
+
+            {% elseif field_desc.type == 'sonata_type_datepicker' %}
+
+                $array['{{ field_name }}'] =  array(
+                    'day' => 1,
+                    'month' => 1,
+                    'year' => 2000
+                );
+
+            {% elseif 'phone' in field_name|lower %}
+                $array['{{ field_name }}'] = '0000000000';        
+            {% elseif 'mobile' in field_name|lower %}
+                $array['{{ field_name }}'] = '9999999999';        
+            {% elseif 'mail' in field_name|lower %}
+                $array['{{ field_name }}'] = 'test@test.net';        
+            {% else %}
+                $array['{{ field_name }}'] = 'test';        
+            {% endif %}
+
         {% endfor %}
 
         $client->request(
