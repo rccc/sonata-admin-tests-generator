@@ -36,11 +36,11 @@ class GenerateCommand extends ContainerAwareCommand
 
         $bundleName = $this->getBundleNameFromClass($admin->getClass());
 
-        dump($bundleName);
+        var_dump($bundleName);
 
         $bundle = $this->getBundle($bundleName);
 
-        dump($bundle);
+        var_dump($bundle);
 
 
         // $bundle_path =  $this->getBundlePathFromClass($admin->getClass());
@@ -49,7 +49,7 @@ class GenerateCommand extends ContainerAwareCommand
 
         $generator->setSkeletonDirs($skeletonDirectory);
 
-        dump($generator->generate($admin, $bundle));
+        var_dump($generator->generate($admin, $bundle));
 
     }
 
