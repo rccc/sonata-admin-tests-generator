@@ -92,8 +92,10 @@ class {{ data.name }}AdminTest extends WebTestCase
         
         $array['_token'] = $extract[0];
 
-        {% for field in data.crud["create"].fields %}
-        $array['{{field.name}}'] = 'test';        
+        {% for field_name, field_desc in admin.formFieldDescriptions %}
+
+        {{ dump(field_desc) }}
+        $array['{{ field_name }}'] = 'test';        
         {% endfor %}
 
         $client->request(
