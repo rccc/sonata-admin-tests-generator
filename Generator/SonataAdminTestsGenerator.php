@@ -49,6 +49,9 @@ class SonataAdminTestsGenerator extends Generator
 
 					foreach($admin->getFormFieldDescriptions() as $key => $field)
 					{
+
+						var_dump($field);
+
 						$fields[] = array(
 							'name' => $field->getName(),
 							'mapping' => $field->getFieldMapping()

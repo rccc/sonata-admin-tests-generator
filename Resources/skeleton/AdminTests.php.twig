@@ -93,9 +93,6 @@ class {{ data.name }}AdminTest extends WebTestCase
         $array['_token'] = $extract[0];
 
         {% for field_name, field_desc in admin.formFieldDescriptions %}
-
-            {{ dump(field_desc) }}
-
   
             {% if field_desc.type == 'sonata_type_autocomplete' %}
                 $array['{{ field_name }}'] = array(
