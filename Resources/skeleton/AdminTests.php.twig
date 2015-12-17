@@ -1,11 +1,18 @@
 <?php
 
+{% set route_list = {} %}
+{% for route in admin.routes.elements %}
+    {% set name =  route.defaults._sonata_name %}
+    {% set action = name|split('_')|last %}
+    {% set route_list = route_list|merge({(action):(name)}) %}
+{% endfor %}
+
 namespace {{ namespace }};
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 
-class {{ data.name }}AdminTest extends WebTestCase
+class {{ admin_name }}AdminTest extends WebTestCase
 {
     private $domain;
 
@@ -17,36 +24,34 @@ class {{ data.name }}AdminTest extends WebTestCase
         if(isset($argv[4])){
             $domain = $argv[4];                
         }
-
-        if(!$domain)
+        elseif(defined('TESTS_DOMAIN'))
         {
-            if(defined('TESTS_DOMAIN'))
-            {
-                $domain = TESTS_DOMAIN;
-            }
-            else
-            {
-                throw new Exception('"domain" argument is mandatory');                
-            }
+            $domain = TESTS_DOMAIN;
         }
-
+        else
+        {
+            throw new Exception('"domain" argument is mandatory');                
+        }
+            
         $this->domain = $domain;
+
     }
 
-    {% if 'list' in data.crud|keys %}
+    {% if admin.hasRoute('list') %}
 
     public function testListIsSuccessfull()
     {
 
         $client = static::createClient(array(), array(
-        'PHP_AUTH_USER' => 'registration@bzoote.com',
+        'PHP_AUTH_USER' => 'eric.paya@bhcar.fr',
         'PHP_AUTH_PW'   => 'chuck',
         ));
 
         $client->enableProfiler();
 
         $container = $client->getContainer();
-        $url = sprintf('%s{{data.crud["list"].route_url }}', $this->domain); 
+
+        $url = sprintf('%s%s', $this->domain, $container->get('router')->generate('{{ route_list["list"] }}'));
 
         $crawler = $client->request('GET',$url);
 
@@ -55,21 +60,21 @@ class {{ data.name }}AdminTest extends WebTestCase
 
     {% endif %}
 
-    {% if 'create' in data.crud|keys %}
+    {% if admin.hasRoute('create') %}
 
     public function testCreateIsSuccessfull()
     {
 
         $client = static::createClient(array(), array(
-        'PHP_AUTH_USER' => 'directeur@directeur.net',
-        'PHP_AUTH_PW'   => 'directeur',
+        'PHP_AUTH_USER' => 'eric.paya@bhcar.fr',
+        'PHP_AUTH_PW'   => 'chuck',
         ));
 
         $client->enableProfiler();
 
         $container = $client->getContainer();
 
-        $url = sprintf('%s{{data.crud["create"].route_url }}', $this->domain); 
+        $url = sprintf('%s%s', $this->domain, $container->get('router')->generate('{{ route_list["create"] }}', array('uniqid' => 'test')));
 
         $crawler = $client->request('GET',$url);
 
@@ -91,31 +96,27 @@ class {{ data.name }}AdminTest extends WebTestCase
         ;
         
         $array['_token'] = $extract[0];
-
         {% for field_name, field_desc in admin.formFieldDescriptions %}
-  
-            {% if field_desc.type == 'sonata_type_autocomplete' %}
-                $array['{{ field_name }}'] = array(
-                    'title' => 1,
-                    'identifiers' => array(1)
-                );
-
-            {% elseif field_desc.type == 'date' %}
-
+            {% if field_desc.type == 'date' %}
                 $array['{{ field_name }}'] =  array(
                     'day' => 1,
                     'month' => 1,
                     'year' => 2000
                 );
+            {% elseif field_desc.type == 'choice' %}
+                {% set option = random(form_builder.get(field_name).form.config.option('choices')|keys) %}
+                $array['{{ field_name }}'] = '{{ option }}'; 
+
+            {% elseif field_desc.type == 'sonata_type_autocomplete' %}
+
+                $array['{{ field_name }}'] =  'test';
 
             {% elseif field_desc.type == 'sonata_type_datepicker' %}
-
                 $array['{{ field_name }}'] =  array(
                     'day' => 1,
                     'month' => 1,
                     'year' => 2000
                 );
-
             {% elseif 'phone' in field_name|lower %}
                 $array['{{ field_name }}'] = '0000000000';        
             {% elseif 'mobile' in field_name|lower %}
@@ -125,7 +126,6 @@ class {{ data.name }}AdminTest extends WebTestCase
             {% else %}
                 $array['{{ field_name }}'] = 'test';        
             {% endif %}
-
         {% endfor %}
 
         $client->request(
@@ -162,18 +162,23 @@ class {{ data.name }}AdminTest extends WebTestCase
 
     {% endif %}
 
-    {% if 'show' in data.crud|keys %}
+    {% if admin.hasRoute('show') %}
     /**
      * @depends testCreateIsSuccessfull
      */
     public function testShowIsSuccessfull($id)
     {
         $client = static::createClient(array(), array(
-        'PHP_AUTH_USER' => 'registration@bzoote.com',
+        'PHP_AUTH_USER' => 'eric.paya@bhcar.fr',
         'PHP_AUTH_PW'   => 'chuck',
         ));
 
-        $url = sprintf('%s{{data.crud["show"].route_url }}', $this->domain,$id); 
+        $container = $client->getContainer();
+
+        $url = sprintf('%s%s', $this->domain, $container->get('router')->generate('{{ route_list["show"] }}', array(
+            'id' => $id, 
+            'uniqid' => 'test'))
+        );
 
         $crawler = $client->request('GET',$url);
 
@@ -183,7 +188,7 @@ class {{ data.name }}AdminTest extends WebTestCase
     }
 
     {% endif %}
-    {% if 'edit' in data.crud|keys %}
+    {% if admin.hasRoute('edit') %}
     /**
      * @depends testShowIsSuccessfull
      */
@@ -191,11 +196,16 @@ class {{ data.name }}AdminTest extends WebTestCase
     {
 
         $client = static::createClient(array(), array(
-        'PHP_AUTH_USER' => 'registration@bzoote.com',
+        'PHP_AUTH_USER' => 'eric.paya@bhcar.fr',
         'PHP_AUTH_PW'   => 'chuck',
         ));
 
-        $url = sprintf('%s{{data.crud["edit"].route_url }}', $this->domain,$id); 
+        $container = $client->getContainer();
+
+        $url = sprintf('%s%s', $this->domain, $container->get('router')->generate('{{ route_list["edit"] }}', array(
+            'id' => $id, 
+            'uniqid' => 'test'))
+        );
 
         $crawler = $client->request('GET',$url);
 
@@ -205,7 +215,7 @@ class {{ data.name }}AdminTest extends WebTestCase
     }     
 
     {% endif %}
-    {% if 'delete' in data.crud|keys %}
+    {% if admin.hasRoute('delete') %}
     /**
      * @depends testEditIsSuccessfull
      */
@@ -213,13 +223,16 @@ class {{ data.name }}AdminTest extends WebTestCase
     {
 
         $client = static::createClient(array(), array(
-        'PHP_AUTH_USER' => 'registration@bzoote.com',
+        'PHP_AUTH_USER' => 'eric.paya@bhcar.fr',
         'PHP_AUTH_PW'   => 'chuck',
         ));
 
         $container = $client->getContainer();
 
-        $url = sprintf('%s{{data.crud["delete"].route_url }}', $this->domain,$id); 
+        $url = sprintf('%s%s', $this->domain, $container->get('router')->generate('{{ route_list["delete"] }}', array(
+            'id' => $id, 
+            'uniqid' => 'test'))
+        );
 
         $crawler = $client->request('GET',$url);
 

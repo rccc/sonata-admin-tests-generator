@@ -17,90 +17,24 @@ class SonataAdminTestsGenerator extends Generator
 
 		$file_path = sprintf('%s/Tests/%sAdminTest.php',$bundle->getPath(), $admin_name);
 
-		$data = $this->getDataFromAdmin($admin, $admin_name);
+		dump($file_path);
+
+		$form_builder = $admin->getFormBuilder();
+
+		// var_dump($builder->get('disponibility')->getAttributes()['data_collector/passed_options']['choices']);
+		//var_dump($form_builder->get('vehicle_model')->getForm()->getConfig()->getOption('callback'));
+		// var_dump($admin->getFormFieldDescription('disponibility'));
+		
 
 		$namespace = $this->getNamespace($admin);
 
 		return $this->renderFile('AdminTests.php.twig', $file_path, array(
-			'admin' 	=> $admin,
-			'data' 		=> $data,
-			'namespace' => $namespace
+			'admin' 		=> $admin,
+			'form_builder'  => $form_builder,
+			'admin_name' 	=> $admin_name,
+			'namespace' 	=> $namespace
 		));
 	}
-
-	protected function getDatafromAdmin($admin, $admin_name)
-	{
-		$data = array();
-
-		$data['name'] 	= $admin_name;
-		$data['crud'] 	= array();
-
-		foreach($admin->getRoutes()->getElements() as $name => $route)
-		{
-			$chunks = explode('.', $name);
-
-			$route_name = array_pop($chunks);
-
-			switch ($route_name) {
-
-				case 'create':
-						
-					$fields = array();
-
-					foreach($admin->getFormFieldDescriptions() as $key => $field)
-					{
-
-						var_dump($field);
-
-						$fields[] = array(
-							'name' => $field->getName(),
-							'mapping' => $field->getFieldMapping()
-						);
-					}
-
-					$data['crud'][$route_name]['fields'] 	= $fields;
-					$data['crud'][$route_name]['route_url'] = $admin->generateUrl('create', array('uniqid'=> 'test'));
-
-					break;
-				case 'edit':
-					$url = $admin->generateUrl('edit', array('id'=> 1, 'uniqid'=> 'test'));
-					$url = str_replace('/1/', '/%s/', $url);
-
-					$data['crud'][$route_name]['route_url'] = $url;
-					break;
-				case 'list':
-					$data['crud'][$route_name]['route_url'] = $admin->generateUrl('list');
-					break;
-				case 'show':
-					$url = $admin->generateUrl('show', array('id'=> 1));
-					$url = str_replace('/1/', '/%s/', $url);
-					
-					$data['crud'][$route_name]['route_url'] = $url;
-					break;
-				case 'delete':
-					$url = $admin->generateUrl('delete', array('id'=> 1));
-					$url = str_replace('/1/', '/%s/', $url);
-					
-					$data['crud'][$route_name]['route_url'] = $url;
-					break;	
-				// case 'batch':
-					# code...
-					// break;
-				// case 'export':
-					# code...
-					// break;
-				default:
-					# code...
-					break;
-			}
-		}
-
-		// dump($data);
-		// die();
-		return $data;
-
-	}
-
 
 	/**
 	 * @param  string

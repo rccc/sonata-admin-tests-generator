@@ -38,13 +38,15 @@ class GenerateCommand extends ContainerAwareCommand
 
         // var_dump($bundleName);
 
+        dump($bundleName);
+
         $bundle = $this->getBundle($bundleName);
 
         $generator = new SonataAdminTestsGenerator();
 
         $generator->setSkeletonDirs($skeletonDirectory);
 
-        var_dump($generator->generate($admin, $bundle));
+        dump($generator->generate($admin, $bundle));
 
     }
 
